@@ -215,13 +215,11 @@ class PolicyApproximator(nn.Module):
         super().__init__()
         
         self.model = nn.Sequential(
-            nn.Linear(n_observations, 128),
+            nn.Linear(n_observations, 64),
             nn.ReLU(),
-            nn.Linear(128, 128),
+            nn.Linear(64, 64),
             nn.ReLU(),
-            nn.Linear(128, 128),
-            nn.ReLU(),
-            nn.Linear(128, n_actions),
+            nn.Linear(64, n_actions),
         )
         
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -232,13 +230,11 @@ class ValueApproximator(nn.Module):
         super().__init__()
         
         self.model = nn.Sequential(
-            nn.Linear(n_observations, 128),
+            nn.Linear(n_observations, 64),
             nn.ReLU(),
-            nn.Linear(128, 128),
+            nn.Linear(64, 64),
             nn.ReLU(),
-            nn.Linear(128, 128),
-            nn.ReLU(),
-            nn.Linear(128, 1),
+            nn.Linear(64, 1),
         )
         
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -246,7 +242,7 @@ class ValueApproximator(nn.Module):
 
 if __name__ == '__main__':
     BASE_PATH = "./models"
-    ENV_NAME = "BipedalWalkerHardcore-v3"
+    ENV_NAME = "MountainCarContinuous-v0"
     
     pretrained = False
     
@@ -256,7 +252,7 @@ if __name__ == '__main__':
     if (pretrained):
         agent.load_models(os.path.join(BASE_PATH, ENV_NAME))
     
-    agent.train(500, True, 490)
+    agent.train(500, True, 0)
     
     torch.save(agent.actor.state_dict(), os.path.join(BASE_PATH, ENV_NAME, "actor.pt"))
     torch.save(agent.critic.state_dict(), os.path.join(BASE_PATH, ENV_NAME, "critic.pt"))
