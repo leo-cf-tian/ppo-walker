@@ -40,6 +40,8 @@ public class FreeCameraController : MonoBehaviour
         float z = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
         float y = verticalAxis * moveSpeed * Time.deltaTime;
 
-        transform.Translate(x, y, z);
+        Vector3 movement = Quaternion.Euler(0, xRotation, 0f) * new Vector3(x, y, z);
+
+        transform.Translate(movement, Space.World);
     }
 }
