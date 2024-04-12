@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
 using UnityEngine.Timeline;
@@ -12,14 +13,16 @@ public class BodyPartController : MonoBehaviour
 
     JointDrive maxJd;
 
-    private float normalizedCurrentTargetRotX;
-    private float normalizedCurrentTargetRotY;
-    private float normalizedCurrentTargetRotZ;
+    private float normalizedCurrentTargetRotX = 0;
+    private float normalizedCurrentTargetRotY = 0;
+    private float normalizedCurrentTargetRotZ = 0;
 
-    private float normalizedCurrentStrength;
+    private float normalizedCurrentStrength = 0;
 
     private Vector3 initialPosition;
     private Quaternion initialRotation;
+
+    public bool touchingGround = false;
 
     public void Initialize(JointDrive maxJd)
     {
@@ -43,8 +46,8 @@ public class BodyPartController : MonoBehaviour
 
     public void ResetPosition()
     {
-        rb.position = initialPosition;
-        rb.rotation = initialRotation;
+        rb.transform.position = initialPosition;
+        rb.transform.rotation = initialRotation;
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
     }
@@ -96,5 +99,17 @@ public class BodyPartController : MonoBehaviour
 
             sensor.AddObservation(normalizedCurrentStrength);
         }
+    }
+
+    void OnCollisionEnter(Collision col)
+    {
+        if (col.transform.CompareTag("Ground"))
+            touchingGround = true;
+    }
+
+    void OnCollisionExit(Collision other)
+    {
+        if (other.transform.CompareTag("Ground"))
+            touchingGround = false;
     }
 }

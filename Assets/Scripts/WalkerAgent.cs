@@ -5,6 +5,7 @@ using Unity.Burst.Intrinsics;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
+using Unity.Sentis;
 using Unity.Sentis.Layers;
 using Unity.VisualScripting;
 using UnityEditor;
@@ -129,8 +130,11 @@ public class WalkerAgent : Agent
 
     void FixedUpdate()
     {
-        if (hips.position.y < 1f)
-            EndEpisode();
+        foreach (BodyPartController bp in bpDict.Values)
+        {
+            if (bp != bpDict[footL] && bp != bpDict[footR] && bp.touchingGround)
+                EndEpisode();
+        }
 
         AddReward(1);
     }
