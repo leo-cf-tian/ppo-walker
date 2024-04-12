@@ -73,4 +73,6 @@ crashlytics-build.properties
 
 # Python model files
 /models
-*.pt
+*.pt*
+*.onnx*
+events.out.tfevents.*

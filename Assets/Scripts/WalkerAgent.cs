@@ -121,11 +121,7 @@ public class WalkerAgent : Agent
     {
         BodyPartController bpController = t.gameObject.GetComponent<BodyPartController>();
         bpDict.Add(t, bpController);
-        bpController.Initialize(new JointDrive {
-            positionSpring = positionSpring,
-            positionDamper = positionDamper,
-            maximumForce = maximumForce
-        });
+        bpController.Initialize(this);
     }
 
     void FixedUpdate()
@@ -133,9 +129,17 @@ public class WalkerAgent : Agent
         foreach (BodyPartController bp in bpDict.Values)
         {
             if (bp != bpDict[footL] && bp != bpDict[footR] && bp.touchingGround)
+            {
+                AddReward(-100);
                 EndEpisode();
+                return;
+            }
         }
 
-        AddReward(1);
+        foreach (BodyPartController bp in bpDict.Values)
+            AddReward(-bp.GetTorque() / 10000);
+
+        AddReward((bpDict[hips].rb.position.y * 2 - bpDict[handL].rb.position.y - bpDict[handR].rb.position.y) / 25);
+        AddReward(head.position.y / 3);
     }
 }

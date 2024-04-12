@@ -5,13 +5,14 @@ using Unity.MLAgents.Sensors;
 using UnityEngine;
 using UnityEngine.Timeline;
 
+
 public class BodyPartController : MonoBehaviour
 {
     private bool hasActiveJoint;
     private ConfigurableJoint joint;
     [HideInInspector] public Rigidbody rb;
 
-    JointDrive maxJd;
+    WalkerAgent agent;
 
     private float normalizedCurrentTargetRotX = 0;
     private float normalizedCurrentTargetRotY = 0;
@@ -24,10 +25,11 @@ public class BodyPartController : MonoBehaviour
 
     public bool touchingGround = false;
 
-    public void Initialize(JointDrive maxJd)
+    public void Initialize(WalkerAgent agent)
     {
         joint = GetComponent<ConfigurableJoint>();
-        if (joint == null ||
+        if (
+            joint == null ||
             joint.angularXMotion == ConfigurableJointMotion.Locked &&
             joint.angularYMotion == ConfigurableJointMotion.Locked &&
             joint.angularZMotion == ConfigurableJointMotion.Locked
@@ -41,7 +43,7 @@ public class BodyPartController : MonoBehaviour
         initialPosition = rb.position;
         initialRotation = rb.rotation;
 
-        this.maxJd = maxJd;
+        this.agent = agent;
     }
 
     public void ResetPosition()
@@ -71,17 +73,17 @@ public class BodyPartController : MonoBehaviour
 
     public void SetStrength(float s)
     {
-        float force = (s + 1f) * 0.5f * maxJd.maximumForce;
+        float force = (s + 1f) * 0.5f * agent.maximumForce;
 
         var jd = new JointDrive
         {
-            positionSpring = maxJd.positionSpring,
-            positionDamper = maxJd.positionDamper,
+            positionSpring = agent.positionSpring,
+            positionDamper = agent.positionDamper,
             maximumForce = force
         };
         joint.slerpDrive = jd;
 
-        normalizedCurrentStrength = force / maxJd.maximumForce;
+        normalizedCurrentStrength = force / agent.maximumForce;
     }
 
     public void ObserveExertion(VectorSensor sensor)
@@ -99,6 +101,13 @@ public class BodyPartController : MonoBehaviour
 
             sensor.AddObservation(normalizedCurrentStrength);
         }
+    }
+
+    public float GetTorque()
+    {
+        if (hasActiveJoint)
+            return joint.currentTorque.magnitude;
+        return 0;
     }
 
     void OnCollisionEnter(Collision col)
