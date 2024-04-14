@@ -109,16 +109,4 @@ public class BodyPartController : MonoBehaviour
             return joint.currentTorque.magnitude;
         return 0;
     }
-
-    void OnCollisionEnter(Collision col)
-    {
-        if (col.transform.CompareTag("Ground"))
-            touchingGround = true;
-    }
-
-    void OnCollisionExit(Collision other)
-    {
-        if (other.transform.CompareTag("Ground"))
-            touchingGround = false;
-    }
 }
