@@ -5,25 +5,22 @@ using Unity.MLAgents.Sensors;
 using UnityEngine;
 using UnityEngine.Timeline;
 
-
 public class BodyPartController : MonoBehaviour
 {
     private bool hasActiveJoint;
-    private ConfigurableJoint joint;
+    [HideInInspector] public ConfigurableJoint joint;
     [HideInInspector] public Rigidbody rb;
+    [HideInInspector] public CollisionDetector collisions;
+
+    private Vector3 initialPosition;
+    private Quaternion initialRotation;
 
     WalkerAgent agent;
 
     private float normalizedCurrentTargetRotX = 0;
     private float normalizedCurrentTargetRotY = 0;
     private float normalizedCurrentTargetRotZ = 0;
-
     private float normalizedCurrentStrength = 0;
-
-    private Vector3 initialPosition;
-    private Quaternion initialRotation;
-
-    public bool touchingGround = false;
 
     public void Initialize(WalkerAgent agent)
     {
@@ -39,6 +36,7 @@ public class BodyPartController : MonoBehaviour
             hasActiveJoint = true;
 
         rb = GetComponent<Rigidbody>();
+        collisions = gameObject.AddComponent<CollisionDetector>();
 
         initialPosition = rb.position;
         initialRotation = rb.rotation;
@@ -57,7 +55,7 @@ public class BodyPartController : MonoBehaviour
     public void SetTargetRotation(float x, float y, float z)
     {
         x = (x + 1f) * 0.5f;
-        z = (y + 1f) * 0.5f;
+        y = (y + 1f) * 0.5f;
         z = (z + 1f) * 0.5f;
 
         float xRot = Mathf.Lerp(joint.lowAngularXLimit.limit, joint.highAngularXLimit.limit, x);

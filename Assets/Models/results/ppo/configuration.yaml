@@ -38,7 +38,7 @@ behaviors:
     init_path: null
     keep_checkpoints: 5
     even_checkpoints: false
-    max_steps: 30000000
+    max_steps: 300000000
     time_horizon: 1000
     summary_freq: 3000
     threaded: false
@@ -69,7 +69,7 @@ checkpoint_settings:
   initialize_from: null
   load_model: true
   resume: true
-  force: false
+  force: true
   train_model: false
   inference: false
   results_dir: results

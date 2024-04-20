@@ -5,37 +5,42 @@ using UnityEngine;
 
 public class CollisionDetector : MonoBehaviour
 {
-    Dictionary<string, bool> collissionTracker = new Dictionary<string, bool>();
+    Dictionary<string, bool> collisionTracker = new Dictionary<string, bool>();
 
     private void Start()
     {
-        collissionTracker.Add("Ground", false);
+        collisionTracker.Add("Ground", false);
+        collisionTracker.Add("Reward", false);
     }
 
     void OnCollisionEnter(Collision col)
     {
-        foreach (string tag in collissionTracker.Keys)
+        Dictionary<string, bool> newCollisions = new Dictionary<string, bool>();
+        foreach (string tag in collisionTracker.Keys)
         {
             if (col.transform.CompareTag(tag))
-            {
-                collissionTracker[tag] = true;
-            }
+                newCollisions[tag] = true;
+            else
+                newCollisions[tag] = collisionTracker[tag];
         }
+        collisionTracker = newCollisions;
     }
 
     void OnCollisionExit(Collision col)
     {
-        foreach (string tag in collissionTracker.Keys)
+        Dictionary<string, bool> newCollisions = new Dictionary<string, bool>();
+        foreach (string tag in collisionTracker.Keys)
         {
             if (col.transform.CompareTag(tag))
-            {
-                collissionTracker[tag] = false;
-            }
+                newCollisions[tag] = false;
+            else
+                newCollisions[tag] = collisionTracker[tag];
         }
+        collisionTracker = newCollisions;
     }
 
     public bool Touching(string tag)
     {
-        return collissionTracker[tag];
+        return collisionTracker[tag];
     }
 }

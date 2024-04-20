@@ -1,61 +1,61 @@
 {
     "Walker": {
+        "final_checkpoint": {
+            "steps": 6389524,
+            "file_path": "results\\ppo\\Walker.onnx",
+            "reward": -660.6741527679552,
+            "creation_time": 1713595536.0752084,
+            "auxillary_file_paths": [
+                "results\\ppo\\Walker\\Walker-6389524.pt"
+            ]
+        },
         "checkpoints": [
             {
-                "steps": 4499928,
-                "file_path": "results\\ppo\\Walker\\Walker-4499928.onnx",
-                "reward": 377.7498216231664,
-                "creation_time": 1712922317.3017373,
-                "auxillary_file_paths": [
-                    "results\\ppo\\Walker\\Walker-4499928.pt"
-                ]
-            },
-            {
-                "steps": 4711259,
-                "file_path": "results\\ppo\\Walker\\Walker-4711259.onnx",
-                "reward": 504.4388069757601,
-                "creation_time": 1712922607.663413,
-                "auxillary_file_paths": [
-                    "results\\ppo\\Walker\\Walker-4711259.pt"
-                ]
-            },
-            {
-                "steps": 4999707,
-                "file_path": "results\\ppo\\Walker\\Walker-4999707.onnx",
-                "reward": 286.43990107945035,
-                "creation_time": 1712923058.137009,
-                "auxillary_file_paths": [
-                    "results\\ppo\\Walker\\Walker-4999707.pt"
-                ]
-            },
-            {
-                "steps": 5499769,
-                "file_path": "results\\ppo\\Walker\\Walker-5499769.onnx",
-                "reward": 762.5893934296398,
-                "creation_time": 1712923798.7009864,
-                "auxillary_file_paths": [
-                    "results\\ppo\\Walker\\Walker-5499769.pt"
-                ]
-            },
-            {
-                "steps": 5658167,
-                "file_path": "results\\ppo\\Walker\\Walker-5658167.onnx",
+                "steps": 4571049,
+                "file_path": "results\\ppo\\Walker\\Walker-4571049.onnx",
                 "reward": null,
-                "creation_time": 1712924112.1074998,
+                "creation_time": 1713591830.2220597,
                 "auxillary_file_paths": [
-                    "results\\ppo\\Walker\\Walker-5658167.pt"
+                    "results\\ppo\\Walker\\Walker-4571049.pt"
+                ]
+            },
+            {
+                "steps": 4999963,
+                "file_path": "results\\ppo\\Walker\\Walker-4999963.onnx",
+                "reward": 2609.406597652951,
+                "creation_time": 1713592754.0633917,
+                "auxillary_file_paths": [
+                    "results\\ppo\\Walker\\Walker-4999963.pt"
+                ]
+            },
+            {
+                "steps": 5499993,
+                "file_path": "results\\ppo\\Walker\\Walker-5499993.onnx",
+                "reward": 2052.3371994786985,
+                "creation_time": 1713593655.3565288,
+                "auxillary_file_paths": [
+                    "results\\ppo\\Walker\\Walker-5499993.pt"
+                ]
+            },
+            {
+                "steps": 5999971,
+                "file_path": "results\\ppo\\Walker\\Walker-5999971.onnx",
+                "reward": 891.7477956607642,
+                "creation_time": 1713594862.6810045,
+                "auxillary_file_paths": [
+                    "results\\ppo\\Walker\\Walker-5999971.pt"
+                ]
+            },
+            {
+                "steps": 6389524,
+                "file_path": "results\\ppo\\Walker\\Walker-6389524.onnx",
+                "reward": -660.6741527679552,
+                "creation_time": 1713595536.0752084,
+                "auxillary_file_paths": [
+                    "results\\ppo\\Walker\\Walker-6389524.pt"
                 ]
             }
-        ],
-        "final_checkpoint": {
-            "steps": 5658167,
-            "file_path": "results\\ppo\\Walker.onnx",
-            "reward": null,
-            "creation_time": 1712924112.1074998,
-            "auxillary_file_paths": [
-                "results\\ppo\\Walker\\Walker-5658167.pt"
-            ]
-        }
+        ]
     },
     "metadata": {
         "stats_format_version": "0.3.0",
