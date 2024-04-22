@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using Unity.Burst.Intrinsics;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
@@ -48,8 +50,12 @@ public class WalkerAgent : Agent
 
     public float targetSpeed;
 
+    private RayPerceptionSensorComponent3D raySensor;
+    private List<LineRenderer> lineRenderers;
+
     Dictionary<Transform, BodyPartController> bpDict = new Dictionary<Transform, BodyPartController>();
-    RayPerceptionSensorComponent3D raySensor;
+
+    Vector3 oldSpeed; 
 
     // Start is called before the first frame update
     public override void Initialize()
@@ -74,6 +80,23 @@ public class WalkerAgent : Agent
         raySensor = head.GetComponent<RayPerceptionSensorComponent3D>();
 
         initialRewardPosition = rewardBall.transform.position;
+
+        var input = raySensor.GetRayPerceptionInput();
+        var outputs = RayPerceptionSensor.Perceive(input, false);
+
+        lineRenderers = new List<LineRenderer>();
+
+        for (var rayIndex = 0; rayIndex < outputs.RayOutputs.Length; rayIndex++)
+        {
+            GameObject go = new GameObject();
+
+            LineRenderer lineRenderer = go.AddComponent<LineRenderer>();
+            lineRenderer.positionCount = 2;
+            lineRenderer.startWidth = 0.05f; // Adjust line width as needed
+            lineRenderer.endWidth = 0.05f;
+
+            lineRenderers.Add(lineRenderer);
+        }
     }
     public override void OnEpisodeBegin()
     {
@@ -84,9 +107,13 @@ public class WalkerAgent : Agent
         hips.rotation = rot;
         orientationBox.rotation = rot;
 
-        Vector3 rand = rot * new Vector3(0, UnityEngine.Random.Range(-0.5f, 0.5f), UnityEngine.Random.Range(10f, 20f));
-        rand = Quaternion.Euler(0, UnityEngine.Random.Range(-45f, 45f), 0) * rand;
+        Vector3 rand = rot * new Vector3(0, UnityEngine.Random.Range(-0.5f, 0.5f), UnityEngine.Random.Range(20f, 30f));
+        rand = Quaternion.Euler(0, UnityEngine.Random.Range(-25f, 25f), 0) * rand;
         rewardBall.position = initialRewardPosition + rand;
+
+        orientationBox.position = new Vector3(hips.position.x, orientationBox.position.y, hips.position.z);
+        rotationIndicator.position = new Vector3(orientationBox.position.x, rotationIndicator.position.y, orientationBox.position.z);
+
     }
 
     public override void CollectObservations(VectorSensor sensor)
@@ -184,45 +211,57 @@ public class WalkerAgent : Agent
 
         foreach (BodyPartController bp in bpDict.Values)
         {
-            if (bp != bpDict[footL] && bp != bpDict[footR] && bp.collisions.Touching("Ground"))
+            if (bp != bpDict[footL] && bp != bpDict[footR] && bp != bpDict[shinR] && bp != bpDict[shinL] && bp.collisions.Touching("Ground"))
             {
-                AddReward(-500);
+                AddReward(-5000);
+                if (head.forward.y < 0)
+                    AddReward(-2000);
                 EndEpisode();
                 return;
             }
 
             if (bp.collisions.Touching("Reward"))
             {
-                AddReward(500);
+                AddReward(4000);
                 RandomizeReward();
             }
         }
 
         foreach (BodyPartController bp in bpDict.Values)
             AddReward(-bp.GetTorque() / 10000);
+        
+        DrawRays();
 
         if (CanSeeReward())
-            AddReward(0.5f);
+            AddReward(5f);
+        else
+            AddReward(-4f);
 
         Vector3 diff = rewardBall.position - orientationBox.position;
         float facing = Vector2.Dot(new Vector2(orientationBox.forward.x, orientationBox.forward.z).normalized, new Vector2(diff.x, diff.z).normalized);
-        AddReward((facing - 0.5f) * 5);
+        AddReward(Mathf.Max(-30, (facing - 0.9f) * 50));
 
-        diff = orientationBox.position - head.position;
         facing = Vector2.Dot(new Vector2(head.forward.x, head.forward.z).normalized, new Vector2(diff.x, diff.z).normalized);
-        AddReward((facing - 0.5f) * 2);
+        AddReward(facing - 0.5f);
 
-        diff = orientationBox.position - hips.position;
         facing = Vector2.Dot(new Vector2(hips.forward.x, hips.forward.z).normalized, new Vector2(diff.x, diff.z).normalized);
-        AddReward((facing - 0.5f) * 2);
+        AddReward(facing - 0.5f);
 
-        facing = Vector3.Dot(GetWeightedVelocity().normalized, new Vector3(orientationBox.forward.x, 0, orientationBox.forward.z).normalized);
-            AddReward(Mathf.Pow(GetWeightedVelocity().magnitude, 2) * (facing - 0.7f) * 2 - Mathf.Abs(hips.forward.y));
+        facing = Vector3.Dot(GetWeightedVelocity().normalized, new Vector3(diff.x, 0, diff.z).normalized);
+        AddReward(Mathf.Max(-10, Mathf.Pow(GetWeightedVelocity().magnitude, 2) * (facing - 0.9f) * 50 - Mathf.Abs(hips.forward.y)));
+
+        oldSpeed = GetWeightedVelocity();
+        if (GetWeightedVelocity().magnitude < oldSpeed.magnitude)
+            AddReward(-Math.Abs(oldSpeed.magnitude - GetWeightedVelocity().magnitude) * 10);
+
+        AddReward(-bpDict[head].rb.angularVelocity.magnitude);
 
         if (bpDict[footL].collisions.Touching("Ground") ^ bpDict[footR].collisions.Touching("Ground"))
             AddReward(2);
 
-        AddReward(3f);
+        AddReward(-10 * head.forward.y);
+
+        AddReward(30f);
     }
 
     bool CanSeeReward()
@@ -251,5 +290,33 @@ public class WalkerAgent : Agent
         }
         while ((rand - hips.position).magnitude < 4);
         rewardBall.position = rand;
+    }
+
+    private void DrawRays()
+    {
+        var input = raySensor.GetRayPerceptionInput();
+        var outputs = RayPerceptionSensor.Perceive(input, false);
+
+
+        for (var rayIndex = 0; rayIndex < outputs.RayOutputs.Length; rayIndex++)
+        {
+            var extents = input.RayExtents(rayIndex);
+            var rayOutput = outputs.RayOutputs[rayIndex];
+            Vector3 startPositionWorld = extents.StartPositionWorld;
+            Vector3 endPositionWorld = startPositionWorld + (extents.EndPositionWorld - startPositionWorld) * rayOutput.HitFraction;
+
+            GameObject goHit = rayOutput.HitGameObject;
+            if (goHit != null && goHit.tag == "Reward")
+            {
+                lineRenderers[rayIndex].material.color = Color.red;
+            }
+            else
+            {
+                lineRenderers[rayIndex].material.color = Color.white;
+
+            }
+            lineRenderers[rayIndex].SetPosition(0, startPositionWorld);
+            lineRenderers[rayIndex].SetPosition(1, endPositionWorld);
+        }
     }
 }

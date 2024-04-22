@@ -3,7 +3,7 @@ behaviors:
   Walker:
     trainer_type: ppo
     hyperparameters:
-      batch_size: 2048
+      batch_size: 8192
       buffer_size: 20480
       learning_rate: 0.001
       beta: 0.005
@@ -40,7 +40,7 @@ behaviors:
     even_checkpoints: false
     max_steps: 300000000
     time_horizon: 1000
-    summary_freq: 3000
+    summary_freq: 9000
     threaded: false
     self_play: null
     behavioral_cloning: null
