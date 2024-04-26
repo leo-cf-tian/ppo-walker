@@ -256,8 +256,7 @@ public class WalkerAgent : Agent
 
         AddReward(-bpDict[head].rb.angularVelocity.magnitude);
 
-        if (bpDict[footL].collisions.Touching("Ground") ^ bpDict[footR].collisions.Touching("Ground"))
-            AddReward(2);
+        AddReward(Vector3.Dot(hips.forward, footL.position - footR.position) * GetWeightedVelocity().magnitude * facing);
 
         AddReward(-10 * head.forward.y);
 
